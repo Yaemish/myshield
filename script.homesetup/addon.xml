@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.homesetup" name="Home Setup Wizard" version="0.1.0" provider-name="you">
+<addon id="script.homesetup" name="Home Setup Wizard" version="0.1.1" provider-name="you">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
   </requires>

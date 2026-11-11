@@ -70,7 +70,7 @@ def install_repo_zip(repo_id):
     return has_addon(repo_id)
 
 
-def install_addon(addon_id, timeout=240):
+def install_addon(addon_id, timeout=420):
     if has_addon(addon_id):
         return True
     xbmc.executebuiltin("InstallAddon(%s)" % addon_id)
@@ -156,7 +156,7 @@ def run():
             if not install_repo_zip(repo_id):
                 problems.append("repo " + repo_id)
 
-        for i, addon_id in enumerate(cfg["addons"]):
+        for i, addon_id in enumerate(cfg["addons_before_skin"]):
             progress.update(35 + i * 20, "Installing %s..." % addon_id)
             if not install_addon(addon_id):
                 problems.append("add-on " + addon_id)
@@ -167,12 +167,25 @@ def run():
             if not set_setting(item["id"], item["value"]):
                 problems.append("setting " + item["id"])
 
-        progress.update(92, "Switching skin...")
+        progress.update(85, "Switching skin...")
         if has_addon(cfg["skin"]):
-            set_setting("lookandfeel.skin", cfg["skin"])
-            wait_until(lambda: xbmc.getSkinDir() == cfg["skin"], 60)
+            if not set_setting("lookandfeel.skin", cfg["skin"]):
+                problems.append("skin switch refused by Kodi")
+            elif not wait_until(lambda: xbmc.getSkinDir() == cfg["skin"], 90):
+                problems.append("skin did not become active")
         else:
             problems.append("skin " + cfg["skin"] + " not installed")
+    finally:
+        progress.close()
+
+    # A skin switch rebuilds the GUI, so open a fresh dialog for the remaining installs.
+    progress = xbmcgui.DialogProgress()
+    progress.create("Home Setup", "Installing remaining add-ons...")
+    try:
+        for i, addon_id in enumerate(cfg["addons_after_skin"]):
+            progress.update(50 + i * 25, "Installing %s..." % addon_id)
+            if not install_addon(addon_id):
+                problems.append("add-on " + addon_id)
     finally:
         progress.close()
 
