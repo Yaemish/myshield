@@ -166,7 +166,8 @@ def run():
     if not dlg.yesno("Home Setup", "Install and configure everything now?[CR]This can take a few minutes."):
         return
     wipe = dlg.yesno("Home Setup", "Clean slate? This resets settings for the add-ons and skin this setup manages. Other add-ons and your library are untouched.")
-    tokens = ask_share()
+    configure = cfg.get("configure", False)
+    tokens = ask_share() if configure else {}
     problems = []
 
     progress = xbmcgui.DialogProgress()
@@ -197,35 +198,41 @@ def run():
             if not install_addon(addon_id):
                 problems.append("add-on " + addon_id)
 
-        progress.update(80, "Applying settings...")
-        apply_overlay(tokens)
-        for item in cfg["settings"][2:]:
-            if not set_setting(item["id"], item["value"]):
-                problems.append("setting " + item["id"])
+        if configure:
+            progress.update(80, "Applying settings...")
+            apply_overlay(tokens)
+            for item in cfg["settings"][2:]:
+                if not set_setting(item["id"], item["value"]):
+                    problems.append("setting " + item["id"])
 
-        progress.update(85, "Switching skin...")
-        if has_addon(cfg["skin"]):
-            if not set_setting("lookandfeel.skin", cfg["skin"]):
-                problems.append("skin switch refused by Kodi")
-            elif not wait_until(lambda: xbmc.getSkinDir() == cfg["skin"], 90):
-                problems.append("skin did not become active")
-        else:
+            progress.update(85, "Switching skin...")
+            if has_addon(cfg["skin"]):
+                if not set_setting("lookandfeel.skin", cfg["skin"]):
+                    problems.append("skin switch refused by Kodi")
+                elif not wait_until(lambda: xbmc.getSkinDir() == cfg["skin"], 90):
+                    problems.append("skin did not become active")
+            else:
+                problems.append("skin " + cfg["skin"] + " not installed")
+        elif not has_addon(cfg["skin"]):
             problems.append("skin " + cfg["skin"] + " not installed")
     finally:
         progress.close()
 
     # A skin switch rebuilds the GUI, so open a fresh dialog for the remaining installs.
-    progress = xbmcgui.DialogProgress()
-    progress.create("Home Setup", "Installing remaining add-ons...")
-    try:
-        for i, addon_id in enumerate(cfg["addons_after_skin"]):
-            progress.update(50 + i * 25, "Installing %s..." % addon_id)
-            if not install_addon(addon_id):
-                problems.append("add-on " + addon_id)
-    finally:
-        progress.close()
+    if cfg["addons_after_skin"]:
+        progress = xbmcgui.DialogProgress()
+        progress.create("Home Setup", "Installing remaining add-ons...")
+        try:
+            for i, addon_id in enumerate(cfg["addons_after_skin"]):
+                progress.update(50 + i * 25, "Installing %s..." % addon_id)
+                if not install_addon(addon_id):
+                    problems.append("add-on " + addon_id)
+        finally:
+            progress.close()
 
     if problems:
         dlg.ok("Home Setup finished with issues", "Could not complete:[CR]" + "[CR]".join(problems))
-    else:
+    elif configure:
         dlg.ok("Home Setup", "Done. Restart Kodi once to finish loading the new skin.")
+    else:
+        dlg.ok("Home Setup", "Arctic Fuse 3 is installed but not activated or configured. Choose it under Settings > Interface > Skin when you are ready.")
