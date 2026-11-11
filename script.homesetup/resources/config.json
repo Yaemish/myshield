@@ -7,8 +7,7 @@
   "settings": [
     {"id": "addons.unknownsources", "value": true},
     {"id": "general.addonforeignupdates", "value": true},
-    {"id": "locale.language", "value": "resource.language.en_gb"},
-    {"id": "subtitles.enabled", "value": false}
+    {"id": "locale.language", "value": "resource.language.en_gb"}
   ],
   "clean_slate_addon_data": [
     "plugin.video.pov",

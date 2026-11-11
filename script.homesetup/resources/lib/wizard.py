@@ -70,11 +70,19 @@ def install_repo_zip(repo_id):
     return has_addon(repo_id)
 
 
-def install_addon(addon_id, timeout=420):
-    if has_addon(addon_id):
-        return True
-    xbmc.executebuiltin("InstallAddon(%s)" % addon_id)
-    return wait_until(lambda: has_addon(addon_id), timeout)
+def install_addon(addon_id, timeout=300, attempts=2):
+    # A freshly added repo can take a while to sync, so refresh and retry once.
+    for n in range(attempts):
+        if has_addon(addon_id):
+            return True
+        xbmc.executebuiltin("UpdateAddonRepos")
+        monitor.waitForAbort(10 if n == 0 else 30)
+        log("installing %s (attempt %d)" % (addon_id, n + 1))
+        xbmc.executebuiltin("InstallAddon(%s)" % addon_id)
+        if wait_until(lambda: has_addon(addon_id), timeout):
+            return True
+        log("install of %s did not complete" % addon_id)
+    return has_addon(addon_id)
 
 
 def clean_slate(cfg):
