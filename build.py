@@ -46,6 +46,27 @@ def resolve_zip(repo_id, index_url):
     return url, Path(best).name
 
 
+# add-on id -> GitHub source archive (repacked so the top folder is the add-on id)
+ADDON_ZIPS = {
+    "skin.arctic.fuse.3": "https://github.com/jurialmunkey/skin.arctic.fuse.3/archive/refs/heads/omega.zip",
+}
+
+
+def repack_addon_zip(addon_id, data):
+    out = io.BytesIO()
+    with zipfile.ZipFile(io.BytesIO(data)) as src, zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as dst:
+        names = [n for n in src.namelist() if not n.endswith("/")]
+        top = names[0].split("/", 1)[0] + "/"
+        for n in names:
+            if not n.startswith(top):
+                sys.exit("Unexpected layout in %s archive" % addon_id)
+            rel = n[len(top):]
+            if rel.startswith(".git"):
+                continue
+            dst.writestr(addon_id + "/" + rel, src.read(n))
+    return out.getvalue()
+
+
 def verify_repo_zip(data, repo_id):
     with zipfile.ZipFile(io.BytesIO(data)) as zf:
         root = ET.fromstring(zf.read("%s/addon.xml" % repo_id))
@@ -68,6 +89,18 @@ def main():
             verify_repo_zip(data, repo_id)
             (stage / "resources" / "repos" / name).write_bytes(data)
             notes.append("%s  %s  %s" % (hashlib.sha256(data).hexdigest(), name, url))
+            print("bundled", name)
+
+        (stage / "resources" / "addons").mkdir(parents=True, exist_ok=True)
+        for addon_id, url in ADDON_ZIPS.items():
+            zdata = repack_addon_zip(addon_id, fetch(url))
+            with zipfile.ZipFile(io.BytesIO(zdata)) as zf:
+                root = ET.fromstring(zf.read(addon_id + "/addon.xml"))
+            if root.get("id") != addon_id:
+                sys.exit("addon.xml id %r != expected %r" % (root.get("id"), addon_id))
+            name = "%s-%s.zip" % (addon_id, root.get("version"))
+            (stage / "resources" / "addons" / name).write_bytes(zdata)
+            notes.append("%s  %s  %s" % (hashlib.sha256(zdata).hexdigest(), name, url))
             print("bundled", name)
 
     version = ET.parse(ADDON / "addon.xml").getroot().get("version")

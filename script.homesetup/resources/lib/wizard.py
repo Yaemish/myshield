@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import time
+import xml.etree.ElementTree as ET
 import zipfile
 
 import xbmc
@@ -85,6 +86,26 @@ def install_addon(addon_id, timeout=300, attempts=2):
     return has_addon(addon_id)
 
 
+def install_bundled_addon(zip_path):
+    """Install an add-on from a bundled ZIP, pulling its dependencies from the installed repos first."""
+    missing = []
+    with zipfile.ZipFile(zip_path) as zf:
+        addon_id = zf.namelist()[0].split("/", 1)[0]
+        root = ET.fromstring(zf.read(addon_id + "/addon.xml"))
+        for imp in root.iter("import"):
+            dep = imp.get("addon")
+            if not dep or dep.startswith("xbmc.") or imp.get("optional") == "true":
+                continue
+            if not install_addon(dep):
+                missing.append(dep)
+        zf.extractall(ADDONS_DIR)
+    xbmc.executebuiltin("UpdateLocalAddons")
+    wait_until(lambda: has_addon(addon_id), 20)
+    jsonrpc("Addons.SetAddonEnabled", {"addonid": addon_id, "enabled": True})
+    log("bundled add-on %s installed=%s missing deps=%s" % (addon_id, has_addon(addon_id), missing))
+    return addon_id, missing
+
+
 def clean_slate(cfg):
     # Move off the managed skin first so its settings are not live when deleted.
     if xbmc.getSkinDir() == cfg["skin"]:
@@ -163,6 +184,13 @@ def run():
             progress.update(10 + i * 10, "Installing repository %s..." % repo_id)
             if not install_repo_zip(repo_id):
                 problems.append("repo " + repo_id)
+
+        for zpath in sorted(glob.glob(os.path.join(RES, "addons", "*.zip"))):
+            progress.update(30, "Installing %s..." % os.path.basename(zpath))
+            bundled_id, missing = install_bundled_addon(zpath)
+            if not has_addon(bundled_id):
+                problems.append("add-on " + bundled_id)
+            problems.extend("dependency " + dep for dep in missing)
 
         for i, addon_id in enumerate(cfg["addons_before_skin"]):
             progress.update(35 + i * 20, "Installing %s..." % addon_id)
