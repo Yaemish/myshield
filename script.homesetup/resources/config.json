@@ -1,0 +1,19 @@
+{
+  "repos": ["repository.kodifitzwell", "repository.jurialmunkey"],
+  "addons": ["plugin.video.pov", "skin.arctic.fuse.3"],
+  "skin": "skin.arctic.fuse.3",
+  "fallback_skin": "skin.estuary",
+  "settings": [
+    {"id": "addons.unknownsources", "value": true},
+    {"id": "general.addonforeignupdates", "value": true},
+    {"id": "locale.language", "value": "resource.language.en_gb"},
+    {"id": "subtitles.enabled", "value": false}
+  ],
+  "clean_slate_addon_data": [
+    "plugin.video.pov",
+    "skin.arctic.fuse.3",
+    "script.skinshortcuts",
+    "script.skinvariables",
+    "plugin.video.themoviedb.helper"
+  ]
+}
