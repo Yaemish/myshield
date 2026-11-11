@@ -1,7 +1,7 @@
 {
   "repos": ["repository.kodifitzwell", "repository.jurialmunkey"],
   "addons_before_skin": ["skin.arctic.fuse.3"],
-  "addons_after_skin": [],
+  "addons_after_skin": ["plugin.video.pov"],
   "configure": false,
   "skin": "skin.arctic.fuse.3",
   "fallback_skin": "skin.estuary",
