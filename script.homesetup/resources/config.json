@@ -13,6 +13,7 @@
   "clean_slate_addon_data": [
     "plugin.video.pov",
     "skin.nimbus",
+    "script.nimbus.helper",
     "script.skinshortcuts",
     "script.skinvariables",
     "plugin.video.themoviedb.helper"

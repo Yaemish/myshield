@@ -47,6 +47,7 @@ def resolve_zip(repo_id, index_url):
 
 # add-on id -> GitHub source archive (repacked so the top folder is the add-on id)
 ADDON_ZIPS = {
+    "script.nimbus.helper": "https://github.com/ivarbrandt/script.nimbus.helper/archive/refs/heads/main.zip",
     "skin.nimbus": "https://github.com/ivarbrandt/skin.nimbus/archive/refs/heads/main.zip",
 }
 
