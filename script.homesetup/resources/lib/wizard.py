@@ -96,7 +96,7 @@ def install_bundled_addon(zip_path):
             dep = imp.get("addon")
             if not dep or dep.startswith("xbmc.") or imp.get("optional") == "true":
                 continue
-            if not install_addon(dep):
+            if not install_addon(dep, timeout=120, attempts=1):
                 missing.append(dep)
         zf.extractall(ADDONS_DIR)
     xbmc.executebuiltin("UpdateLocalAddons")
