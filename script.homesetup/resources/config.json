@@ -1,5 +1,5 @@
 {
-  "repos": ["repository.kodifitzwell", "repository.ivarbrandt"],
+  "repos": ["repository.kodifitzwell"],
   "addons_before_skin": [],
   "addons_after_skin": ["plugin.video.pov"],
   "configure": false,

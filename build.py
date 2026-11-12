@@ -22,7 +22,6 @@ SITE = DIST / "site"
 # repo add-on id -> page that links to its installable ZIP
 SOURCES = {
     "repository.kodifitzwell": "https://kodifitzwell.github.io/repo/",
-    "repository.ivarbrandt": "https://ivarbrandt.github.io/repository.ivarbrandt/",
 }
 
 
