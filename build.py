@@ -48,7 +48,7 @@ def resolve_zip(repo_id, index_url):
 
 # add-on id -> GitHub source archive (repacked so the top folder is the add-on id)
 ADDON_ZIPS = {
-    "skin.arctic.fuse.3": "https://github.com/jurialmunkey/skin.arctic.fuse.3/archive/refs/heads/omega.zip",
+    "skin.nimbus": "https://github.com/ivarbrandt/skin.nimbus/archive/refs/heads/main.zip",
 }
 
 

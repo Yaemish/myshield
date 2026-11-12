@@ -1,9 +1,9 @@
 {
   "repos": ["repository.kodifitzwell", "repository.jurialmunkey"],
-  "addons_before_skin": ["skin.arctic.fuse.3"],
+  "addons_before_skin": [],
   "addons_after_skin": ["plugin.video.pov"],
   "configure": false,
-  "skin": "skin.arctic.fuse.3",
+  "skin": "skin.nimbus",
   "fallback_skin": "skin.estuary",
   "settings": [
     {"id": "addons.unknownsources", "value": true},
@@ -12,7 +12,7 @@
   ],
   "clean_slate_addon_data": [
     "plugin.video.pov",
-    "skin.arctic.fuse.3",
+    "skin.nimbus",
     "script.skinshortcuts",
     "script.skinvariables",
     "plugin.video.themoviedb.helper"
