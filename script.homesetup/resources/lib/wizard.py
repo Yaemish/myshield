@@ -235,4 +235,4 @@ def run():
     elif configure:
         dlg.ok("Home Setup", "Done. Restart Kodi once to finish loading the new skin.")
     else:
-        dlg.ok("Home Setup", "Arctic Fuse 3 and the remaining add-ons are installed but not activated or configured. Choose the skin under Settings > Interface > Skin when you are ready.")
+        dlg.ok("Home Setup", "The skin and the remaining add-ons are installed but not activated or configured. Choose the skin under Settings > Interface > Skin when you are ready.")
