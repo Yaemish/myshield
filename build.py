@@ -22,6 +22,7 @@ SITE = DIST / "site"
 # repo add-on id -> page that links to its installable ZIP
 SOURCES = {
     "repository.kodifitzwell": "https://kodifitzwell.github.io/repo/",
+    "repository.jurialmunkey": "https://jurialmunkey.github.io/repository.jurialmunkey/",
 }
 
 
@@ -47,8 +48,7 @@ def resolve_zip(repo_id, index_url):
 
 # add-on id -> GitHub source archive (repacked so the top folder is the add-on id)
 ADDON_ZIPS = {
-    "script.nimbus.helper": "https://github.com/ivarbrandt/script.nimbus.helper/archive/refs/heads/main.zip",
-    "skin.nimbus": "https://github.com/ivarbrandt/skin.nimbus/archive/refs/heads/main.zip",
+    "skin.arctic.fuse.3": "https://github.com/jurialmunkey/skin.arctic.fuse.3/archive/refs/heads/omega.zip",
 }
 
 
