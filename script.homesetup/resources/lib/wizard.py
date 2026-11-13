@@ -165,6 +165,12 @@ def run():
     dlg = xbmcgui.Dialog()
     if not dlg.yesno("Home Setup", "Install and configure everything now?[CR]This can take a few minutes."):
         return
+    skins = cfg["skins"]
+    pick = dlg.select("Choose a skin to install", [s["label"] for s in skins])
+    if pick < 0:
+        return
+    skin = skins[pick]
+    cfg["skin"] = skin["skin_id"]
     wipe = dlg.yesno("Home Setup", "Clean slate? This resets settings for the add-ons and skin this setup manages. Other add-ons and your library are untouched.")
     configure = cfg.get("configure", False)
     tokens = ask_share() if configure else {}
@@ -181,20 +187,25 @@ def run():
             progress.update(5, "Resetting managed settings...")
             clean_slate(cfg)
 
-        for i, repo_id in enumerate(cfg["repos"]):
-            progress.update(10 + i * 10, "Installing repository %s..." % repo_id)
+        for i, repo_id in enumerate(cfg["repos"] + skin["repos"]):
+            progress.update(10 + i * 8, "Installing repository %s..." % repo_id)
             if not install_repo_zip(repo_id):
                 problems.append("repo " + repo_id)
 
-        for zpath in sorted(glob.glob(os.path.join(RES, "addons", "*.zip"))):
-            progress.update(30, "Installing %s..." % os.path.basename(zpath))
-            bundled_id, missing = install_bundled_addon(zpath)
+        # Bundled add-ons install in the listed order (helpers before the skin that needs them).
+        for bundled in skin["bundled"]:
+            matches = sorted(glob.glob(os.path.join(RES, "addons", bundled + "-*.zip")))
+            if not matches:
+                problems.append("bundled file for " + bundled)
+                continue
+            progress.update(35, "Installing %s..." % bundled)
+            bundled_id, missing = install_bundled_addon(matches[-1])
             if not has_addon(bundled_id):
                 problems.append("add-on " + bundled_id)
             problems.extend("dependency " + dep for dep in missing)
 
-        for i, addon_id in enumerate(cfg["addons_before_skin"]):
-            progress.update(35 + i * 20, "Installing %s..." % addon_id)
+        for i, addon_id in enumerate(skin["install"]):
+            progress.update(50 + i * 10, "Installing %s..." % addon_id)
             if not install_addon(addon_id):
                 problems.append("add-on " + addon_id)
 

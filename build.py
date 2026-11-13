@@ -25,6 +25,11 @@ SOURCES = {
     "repository.jurialmunkey": "https://jurialmunkey.github.io/repository.jurialmunkey/",
 }
 
+# repo add-on id -> direct URL of its installable ZIP (no index page to scrape)
+DIRECT_REPOS = {
+    "repository.bingie": "https://raw.githubusercontent.com/matke-84/repository.bingie/main/repository.bingie/repository.bingie-1.0.0.zip",
+}
+
 
 def fetch(url):
     req = urllib.request.Request(url, headers={"User-Agent": "kodi-installer-build"})
@@ -48,7 +53,9 @@ def resolve_zip(repo_id, index_url):
 
 # add-on id -> GitHub source archive (repacked so the top folder is the add-on id)
 ADDON_ZIPS = {
-    "skin.arctic.fuse.2": "https://github.com/jurialmunkey/skin.arctic.fuse.2/archive/refs/heads/omega.zip",
+    "script.nimbus.helper": "https://github.com/ivarbrandt/script.nimbus.helper/archive/refs/heads/main.zip",
+    "skin.nimbus": "https://github.com/ivarbrandt/skin.nimbus/archive/refs/heads/main.zip",
+    "skin.arctic.zephyr.2": "https://github.com/jurialmunkey/skin.arctic.zephyr.2/archive/refs/heads/master.zip",
 }
 
 
@@ -87,6 +94,14 @@ def main():
             url, name = resolve_zip(repo_id, index)
             data = fetch(url)
             verify_repo_zip(data, repo_id)
+            (stage / "resources" / "repos" / name).write_bytes(data)
+            notes.append("%s  %s  %s" % (hashlib.sha256(data).hexdigest(), name, url))
+            print("bundled", name)
+
+        for repo_id, url in DIRECT_REPOS.items():
+            data = fetch(url)
+            verify_repo_zip(data, repo_id)
+            name = Path(url).name
             (stage / "resources" / "repos" / name).write_bytes(data)
             notes.append("%s  %s  %s" % (hashlib.sha256(data).hexdigest(), name, url))
             print("bundled", name)
